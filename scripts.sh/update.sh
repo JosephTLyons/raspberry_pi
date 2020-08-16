@@ -7,3 +7,9 @@ sudo apt update
 
 # upgrade all installed packages to their latest versions
 sudo apt full-upgrade
+
+# Install Sense Hat
+sudo apt install sense-hat
+
+# Note, will need to perform a `sudo reboot` after this
+# Maybe that should be part of this script?
