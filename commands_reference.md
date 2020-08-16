@@ -2,10 +2,10 @@
 
 ## Power commands
 
-shut down \
+shut down
 
 `sudo poweroff`
 
-reboots \
+reboots
 
 `sudo reboot`
