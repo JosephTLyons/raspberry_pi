@@ -36,21 +36,32 @@ drops = {}
 
 
 selectable_color_index = 0
-selectable_colors = [green, blue, red]
-shown = selectable_colors[0]
+random_text = "random"
+selectable_colors = [red, green, blue, random_text]
+
+
+def make_random_color():
+    return [randint(0, 255) for _ in range(3)]
 
 
 def update_color_palette_window():
-    color_palette_window = [
-        white, white, white, white, white, white, white, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, shown, shown, shown, shown, shown, shown, white,
-        white, white, white, white, white, white, white, white,
-    ]
+    color_palette_window =[]
+    border_color = white
+
+    for i in range(8):
+        if i in [0, 7]:
+            color_palette_window += [border_color] * 8
+        else:
+            color_palette_window += [border_color]
+
+            color_option = selectable_colors[selectable_color_index]
+
+            if color_option == random_text:
+                color_palette_window += [make_random_color() for _ in range(6)]
+            else:
+                color_palette_window += [color_option] * 6
+
+            color_palette_window += [border_color]
 
     sense.set_pixels(color_palette_window)
 
@@ -79,12 +90,7 @@ def update_drop_dict():
     if current_coordinates_tuple in drops:
         del drops[current_coordinates_tuple]
     else:
-        if current_color:
-            color = current_color
-        else:
-            color = [randint(0, 255) for _ in range(3)]
-
-        drops[current_coordinates_tuple] = color
+        drops[current_coordinates_tuple] = current_color
 
     animate_drop()
 
@@ -118,30 +124,31 @@ def handle_joystick_in_cavas(event):
 
 def handle_joystick_in_color_palette(event):
     global selectable_color_index
+    global window
 
     if event.direction in ["up", "down"]:
         if event.direction == "up":
             selectable_color_index += 1
+
+            last_index = len(selectable_colors) - 1
+
+            if selectable_color_index > last_index:
+                selectable_color_index = last_index
         elif event.direction == "down":
+            if selectable_color_index == 0:
+                window = Window.CANVAS
+                return
+
             selectable_color_index -= 1
-
-        last_index = len(selectable_colors) - 1
-
-        if selectable_color_index < 0:
-            selectable_color_index = 0
-        elif selectable_color_index > last_index:
-            selectable_color_index = last_index
-
-        global shown
-        shown = selectable_colors[selectable_color_index]
-        print(selectable_color_index)
     elif event.direction == "middle":
         global current_color
 
         current_color = selectable_colors[selectable_color_index]
-        selectable_color_index = 0
 
-        global window
+        if current_color == random_text:
+            current_color = make_random_color()
+
+        selectable_color_index = 0
         window = Window.CANVAS
 
 
@@ -160,6 +167,13 @@ add_pixel(current_coordinates, current_color)
 
 
 while True:
+    # temp_current_color = current_color
+    # time.sleep(0.25)
+    # current_color = off
+    # refresh_ui()
+    # time.sleep(0.25)
+    # current_color = temp_current_color
+    # refresh_ui()
     time.sleep(1)
 
 
