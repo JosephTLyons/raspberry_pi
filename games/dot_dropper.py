@@ -17,8 +17,8 @@ class Window(Enum):
 
 @unique
 class Tool(Enum):
-    ERASER = auto()
     BRUSH = auto()
+    ERASER = auto()
 
 
 class Color:
@@ -38,13 +38,6 @@ class ColorGenerator:
         return [cls.make_random_color() for _ in range(number_of_colors)]
 
 
-# def update_tool():
-#     color_option = selectable_colors[selectable_color_index]
-
-#     if color_option == Color.BLACK:
-#         current_tool = Tool.ERASER
-
-
 # class Menu:
 #     def __init__(self, menu_items):
 #         self.menu_items = menu_items
@@ -52,6 +45,12 @@ class ColorGenerator:
 
 class Main:
     def __init__(self):
+        self.up = "up"
+        self.down = "down"
+        self.left = "left"
+        self.right = "right"
+        self.middle = "middle"
+
         self.window = Window.CANVAS
 
         self.drops = {}
@@ -105,48 +104,57 @@ class Main:
             self.refresh_ui()
 
     def handle_joystick_in_cavas(self, event):
-        if event.direction == "up":
+        if event.direction == self.up:
             if self.current_coordinates == [0, 0]:
                 self.window = Window.COLOR_PALETTE
             elif self.current_coordinates == [1, 0]:
                 self.window = Window.TOOL_SELECTOR
             else:
                 self.current_coordinates[1] -= 1
-        elif event.direction == "down":
+        elif event.direction == self.down:
             self.current_coordinates[1] += 1
-        elif event.direction == "left":
+        elif event.direction == self.left:
             self.current_coordinates[0] -= 1
-        elif event.direction == "right":
+        elif event.direction == self.right:
             self.current_coordinates[0] += 1
-        elif event.direction == "middle":
+        elif event.direction == self.middle:
             self.update_drop_dict()
 
     def handle_joystick_in_color_palette(self, event):
-        if event.direction == "up":
-            self.selectable_color_index += 1
+        self.handle_joystick_in_menu_base(event, "current_color", "selectable_colors", "selectable_color_index")
 
-            last_index = len(self.selectable_colors) - 1
-
-            if self.selectable_color_index > last_index:
-                self.selectable_color_index = last_index
-        elif event.direction == "down":
-            if self.selectable_color_index == 0:
-                self.window = Window.CANVAS
-                return
-
-            self.selectable_color_index -= 1
-        elif event.direction == "middle":
-            self.current_color = self.selectable_colors[self.selectable_color_index]
-
+        if event.direction == self.middle:
             if self.current_color == self.random_color_text:
                 self.current_color = ColorGenerator.make_random_color()
 
-            self.selectable_color_index = 0
+    def handle_joystick_in_tool_selector(self, event):
+        self.handle_joystick_in_menu_base(event, "current_tool", "selectable_tools", "selectable_tool_index")
+
+    def handle_joystick_in_menu_base(self, event, current_item, selectable_items, selectable_item_index):
+        index = getattr(self, selectable_item_index)
+        items = getattr(self, selectable_items)
+
+        if event.direction == self.up:
+            index += 1
+
+            last_index = len(items) - 1
+
+            if index > last_index:
+                index = last_index
+        elif event.direction == self.down:
+            if index == 0:
+                self.window = Window.CANVAS
+                return
+
+            index -= 1
+        elif event.direction == self.middle:
+            setattr(self, current_item, items[index])
+            index = 0
+
             self.window = Window.CANVAS
 
-    def handle_joystick_in_tool_selector(self, event):
-        # Refactor handle_joystick_in_color_palette to work with both color and tool menu
-        pass
+        setattr(self, selectable_item_index, index)
+
 
     def update_drop_dict(self):
         current_coordinates_tuple = tuple(self.current_coordinates)
@@ -167,18 +175,18 @@ class Main:
         self.sense.clear()
 
         if self.window == Window.CANVAS:
-            self.update_canvas()
+            self.update_canvas_window()
         elif self.window == Window.COLOR_PALETTE:
-            self.update_color_palette()
+            self.update_color_palette_window()
         elif self.window == Window.TOOL_SELECTOR:
-            self.update_tool()
+            self.update_tool_window()
 
-    def update_canvas(self):
+    def update_canvas_window(self):
         self.add_drops_to_ui()
         self.add_pixel(self.current_coordinates, self.current_color)
 
-    def update_color_palette(self):
-        color_palette_window =[]
+    def update_color_palette_window(self):
+        color_palette_window = []
         border_color = Color.WHITE
 
         for i in range(self.number_of_pixels_in_row):
@@ -187,16 +195,26 @@ class Main:
             else:
                 color_palette_window += [border_color]
 
-                color_option = self.selectable_colors[self.selectable_color_index]
+                # selectable_color = self.selectable_colors[self.selectable_color_index]
+                selectable_color = self.selectable_colors[self.selectable_color_index]
 
-                if color_option == self.random_color_text:
+                if selectable_color == self.random_color_text:
                     color_palette_window += ColorGenerator.make_random_color_list(6)
                 else:
-                    color_palette_window += [color_option] * 6
+                    color_palette_window += [selectable_color] * 6
 
                 color_palette_window += [border_color]
 
         self.sense.set_pixels(color_palette_window)
+
+    def update_tool_window(self):
+        selectable_tool = self.selectable_tools[self.selectable_tool_index]
+        if selectable_tool == Tool.BRUSH:
+            # Placeholder
+            self.sense.show_message("Brush")
+        elif selectable_tool == Tool.ERASER:
+            # Placeholder
+            self.sense.show_message("Eraser")
 
     def add_drops_to_ui(self):
         for drop_coordinate, drop_color in self.drops.items():
@@ -211,3 +229,7 @@ if __name__ == "__main__":
 # Shake to erase whole thing? (make sure to keep main dot where it is at)
 # Double tap to exit or press and hold?
 # Should I be using the while true?
+# Move other classes / enums to their own files?
+# Move project to its own repo?
+# Rename it to something else
+# Maybe extend it to be able to do animations as well (sprites)
