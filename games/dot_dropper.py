@@ -8,173 +8,204 @@ from random import randint
 from sense_hat import SenseHat
 
 
-sense = SenseHat()
-sense.clear()
-
-
 @unique
 class Window(Enum):
     COLOR_PALETTE = auto()
     CANVAS = auto()
+    TOOL_SELECTOR = auto()
 
 
-window = Window.CANVAS
+@unique
+class Tool(Enum):
+    ERASER = auto()
+    BRUSH = auto()
 
 
-green = (0, 255, 0)
-blue = (0, 0, 255)
-red = (255, 0, 0)
-off = (0,) * 3
-white = (255,) * 3
+class Color:
+    BLUE = (0, 0, 255)
+    GREEN = (0, 255, 0)
+    RED = (255, 0, 0)
+    WHITE = (255, 255, 255)
 
 
-current_coordinates = [0, 0]
-current_color = green
+class ColorGenerator:
+    @staticmethod
+    def make_random_color():
+        return [randint(0, 255) for _ in range(3)]
+
+    @classmethod
+    def make_random_color_list(cls, number_of_colors):
+        return [cls.make_random_color() for _ in range(number_of_colors)]
 
 
-drops = {}
+# def update_tool():
+#     color_option = selectable_colors[selectable_color_index]
+
+#     if color_option == Color.BLACK:
+#         current_tool = Tool.ERASER
 
 
-selectable_color_index = 0
-random_text = "random"
-selectable_colors = [red, green, blue, random_text]
+# class Menu:
+#     def __init__(self, menu_items):
+#         self.menu_items = menu_items
 
 
-def make_random_color():
-    return [randint(0, 255) for _ in range(3)]
+class Main:
+    def __init__(self):
+        self.window = Window.CANVAS
 
+        self.drops = {}
 
-def update_color_palette_window():
-    color_palette_window =[]
-    border_color = white
+        self.random_color_text = "random"
 
-    for i in range(8):
-        if i in [0, 7]:
-            color_palette_window += [border_color] * 8
-        else:
-            color_palette_window += [border_color]
+        self.selectable_colors = [self.random_color_text, Color.RED, Color.GREEN, Color.BLUE]
+        self.selectable_color_index = 0
 
-            color_option = selectable_colors[selectable_color_index]
+        self.selectable_tools = [Tool.BRUSH, Tool.ERASER]
+        self.selectable_tool_index = 0
 
-            if color_option == random_text:
-                color_palette_window += [make_random_color() for _ in range(6)]
-            else:
-                color_palette_window += [color_option] * 6
+        self.current_coordinates = [0, 0]
+        self.current_color = Color.GREEN
+        self.current_tool = Tool.BRUSH
 
-            color_palette_window += [border_color]
+        self.sense = SenseHat()
+        self.sense.stick.direction_any = self.handle_joystick
 
-    sense.set_pixels(color_palette_window)
+        self.number_of_pixels_in_row = 8
 
+    def run(self):
+        self.sense.clear()
+        self.add_pixel(self.current_coordinates, self.current_color)
 
-def add_pixel(coordinates, color):
-    for i in range(len(current_coordinates)):
-        current_coordinates[i] %= 8
+        while True:
+            # temp_current_color = current_color
+            # time.sleep(0.25)
+            # current_color = black
+            # refresh_ui()
+            # time.sleep(0.25)
+            # current_color = temp_current_color
+            # refresh_ui()
+            time.sleep(1)
 
-    sense.set_pixel(coordinates[0], coordinates[1], color)
+    def add_pixel(self, coordinates, color):
+        for i in range(len(coordinates)):
+            self.current_coordinates[i] %= 8
 
+        self.sense.set_pixel(coordinates[0], coordinates[1], color)
 
-def add_drops_to_ui():
-    for drop_coordinate, drop_color in drops.items():
-        add_pixel(drop_coordinate, drop_color)
+    def handle_joystick(self, event):
+        if event.action == "pressed":
+            if self.window == Window.CANVAS:
+                self.handle_joystick_in_cavas(event)
+            elif self.window == Window.COLOR_PALETTE:
+                self.handle_joystick_in_color_palette(event)
+            elif self.window == Window.TOOL_SELECTOR:
+                self.handle_joystick_in_tool_selector(event)
 
+            self.refresh_ui()
 
-def animate_drop():
-    add_pixel(current_coordinates, red)
-    time.sleep(0.1)
-    add_pixel(current_coordinates, current_color)
-
-
-def update_drop_dict():
-    current_coordinates_tuple = tuple(current_coordinates)
-
-    if current_coordinates_tuple in drops:
-        del drops[current_coordinates_tuple]
-    else:
-        drops[current_coordinates_tuple] = current_color
-
-    animate_drop()
-
-
-def refresh_ui():
-    sense.clear()
-
-    if window == Window.CANVAS:
-        add_drops_to_ui()
-        add_pixel(current_coordinates, current_color)
-    elif window == Window.COLOR_PALETTE:
-        update_color_palette_window()
-
-
-def handle_joystick_in_cavas(event):
-    if event.direction == "up":
-        if current_coordinates == [0, 0]:
-            global window
-            window = Window.COLOR_PALETTE
-        else:
-            current_coordinates[1] -= 1
-    elif event.direction == "down":
-        current_coordinates[1] += 1
-    elif event.direction == "left":
-        current_coordinates[0] -= 1
-    elif event.direction == "right":
-        current_coordinates[0] += 1
-    elif event.direction == "middle":
-        update_drop_dict()
-
-
-def handle_joystick_in_color_palette(event):
-    global selectable_color_index
-    global window
-
-    if event.direction in ["up", "down"]:
+    def handle_joystick_in_cavas(self, event):
         if event.direction == "up":
-            selectable_color_index += 1
-
-            last_index = len(selectable_colors) - 1
-
-            if selectable_color_index > last_index:
-                selectable_color_index = last_index
+            if self.current_coordinates == [0, 0]:
+                self.window = Window.COLOR_PALETTE
+            elif self.current_coordinates == [1, 0]:
+                self.window = Window.TOOL_SELECTOR
+            else:
+                self.current_coordinates[1] -= 1
         elif event.direction == "down":
-            if selectable_color_index == 0:
-                window = Window.CANVAS
+            self.current_coordinates[1] += 1
+        elif event.direction == "left":
+            self.current_coordinates[0] -= 1
+        elif event.direction == "right":
+            self.current_coordinates[0] += 1
+        elif event.direction == "middle":
+            self.update_drop_dict()
+
+    def handle_joystick_in_color_palette(self, event):
+        if event.direction == "up":
+            self.selectable_color_index += 1
+
+            last_index = len(self.selectable_colors) - 1
+
+            if self.selectable_color_index > last_index:
+                self.selectable_color_index = last_index
+        elif event.direction == "down":
+            if self.selectable_color_index == 0:
+                self.window = Window.CANVAS
                 return
 
-            selectable_color_index -= 1
-    elif event.direction == "middle":
-        global current_color
+            self.selectable_color_index -= 1
+        elif event.direction == "middle":
+            current_color = self.selectable_colors[self.selectable_color_index]
 
-        current_color = selectable_colors[selectable_color_index]
+            if current_color == self.random_color_text:
+                current_color = ColorGenerator.make_random_color()
 
-        if current_color == random_text:
-            current_color = make_random_color()
+            self.selectable_color_index = 0
+            self.window = Window.CANVAS
 
-        selectable_color_index = 0
-        window = Window.CANVAS
+    def handle_joystick_in_tool_selector(self, event):
+        # Refactor handle_joystick_in_color_palette to work with both color and tool menu
+        pass
+
+    def update_drop_dict(self):
+        current_coordinates_tuple = tuple(self.current_coordinates)
+
+        if self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
+            del self.drops[current_coordinates_tuple]
+        elif self.current_tool == Tool.BRUSH:
+            self.drops[current_coordinates_tuple] = self.current_color
+
+        self.animate_drop()
+
+    def animate_drop(self):
+        self.add_pixel(self.current_coordinates, Color.RED)
+        time.sleep(0.1)
+        self.add_pixel(self.current_coordinates, self.current_color)
+
+    def refresh_ui(self):
+        self.sense.clear()
+
+        if self.window == Window.CANVAS:
+            self.update_canvas()
+        elif self.window == Window.COLOR_PALETTE:
+            self.update_color_palette()
+        elif self.window == Window.TOOL_SELECTOR:
+            self.update_tool()
+
+    def update_canvas(self):
+        self.add_drops_to_ui()
+        self.add_pixel(self.current_coordinates, self.current_color)
+
+    def update_color_palette(self):
+        color_palette_window =[]
+        border_color = Color.WHITE
+
+        for i in range(self.number_of_pixels_in_row):
+            if i in [0, self.number_of_pixels_in_row - 1]:
+                color_palette_window += [border_color] * self.number_of_pixels_in_row
+            else:
+                color_palette_window += [border_color]
+
+                color_option = self.selectable_colors[self.selectable_color_index]
+
+                if color_option == self.random_color_text:
+                    color_palette_window += ColorGenerator.make_random_color_list(6)
+                else:
+                    color_palette_window += [color_option] * 6
+
+                color_palette_window += [border_color]
+
+        self.sense.set_pixels(color_palette_window)
+
+    def add_drops_to_ui(self):
+        for drop_coordinate, drop_color in self.drops.items():
+            self.add_pixel(drop_coordinate, drop_color)
 
 
-def handle_joystick(event):
-    if event.action == "pressed":
-        if window == Window.CANVAS:
-            handle_joystick_in_cavas(event)
-        elif window == Window.COLOR_PALETTE:
-            handle_joystick_in_color_palette(event)
-
-        refresh_ui()
-
-
-sense.stick.direction_any = handle_joystick
-add_pixel(current_coordinates, current_color)
-
-
-while True:
-    # temp_current_color = current_color
-    # time.sleep(0.25)
-    # current_color = off
-    # refresh_ui()
-    # time.sleep(0.25)
-    # current_color = temp_current_color
-    # refresh_ui()
-    time.sleep(1)
+if __name__ == "__main__":
+    main = Main()
+    main.run()
 
 
 # Shake to erase whole thing? (make sure to keep main dot where it is at)
