@@ -195,7 +195,6 @@ class Main:
             else:
                 color_palette_window += [border_color]
 
-                # selectable_color = self.selectable_colors[self.selectable_color_index]
                 selectable_color = self.selectable_colors[self.selectable_color_index]
 
                 if selectable_color == self.random_color_text:
