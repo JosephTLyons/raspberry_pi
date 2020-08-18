@@ -136,10 +136,10 @@ class Main:
 
             self.selectable_color_index -= 1
         elif event.direction == "middle":
-            current_color = self.selectable_colors[self.selectable_color_index]
+            self.current_color = self.selectable_colors[self.selectable_color_index]
 
-            if current_color == self.random_color_text:
-                current_color = ColorGenerator.make_random_color()
+            if self.current_color == self.random_color_text:
+                self.current_color = ColorGenerator.make_random_color()
 
             self.selectable_color_index = 0
             self.window = Window.CANVAS
