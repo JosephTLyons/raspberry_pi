@@ -21,11 +21,22 @@ class Tool(Enum):
     ERASER = auto()
 
 
+# Can this be made into an enum?
 class Color:
+    BLACK = (0, 0, 0)
     BLUE = (0, 0, 255)
     GREEN = (0, 255, 0)
     RED = (255, 0, 0)
     WHITE = (255, 255, 255)
+
+
+# Can this be made into an enum?
+class JoystickAction:
+    UP = "up"
+    DOWN = "down"
+    LEFT = "left"
+    RIGHT = "right"
+    MIDDLE = "middle"
 
 
 class ColorGenerator:
@@ -38,19 +49,8 @@ class ColorGenerator:
         return [cls.make_random_color() for _ in range(number_of_colors)]
 
 
-# class Menu:
-#     def __init__(self, menu_items):
-#         self.menu_items = menu_items
-
-
 class Main:
     def __init__(self):
-        self.up = "up"
-        self.down = "down"
-        self.left = "left"
-        self.right = "right"
-        self.middle = "middle"
-
         self.window = Window.CANVAS
 
         self.drops = {}
@@ -86,11 +86,16 @@ class Main:
             # refresh_ui()
             time.sleep(1)
 
+
     def add_pixel(self, coordinates, color):
+        self.sense.set_pixel(coordinates[0], coordinates[1], color)
+
+
+    def add_pixel_safe(self, coordinates, color):
         for i in range(len(coordinates)):
             self.current_coordinates[i] %= 8
 
-        self.sense.set_pixel(coordinates[0], coordinates[1], color)
+        self.add_pixel(coordinates, color)
 
     def handle_joystick(self, event):
         if event.action == "pressed":
@@ -104,26 +109,26 @@ class Main:
             self.refresh_ui()
 
     def handle_joystick_in_cavas(self, event):
-        if event.direction == self.up:
+        if event.direction == JoystickAction.UP:
             if self.current_coordinates == [0, 0]:
                 self.window = Window.COLOR_PALETTE
             elif self.current_coordinates == [1, 0]:
                 self.window = Window.TOOL_SELECTOR
             else:
                 self.current_coordinates[1] -= 1
-        elif event.direction == self.down:
+        elif event.direction == JoystickAction.DOWN:
             self.current_coordinates[1] += 1
-        elif event.direction == self.left:
+        elif event.direction == JoystickAction.LEFT:
             self.current_coordinates[0] -= 1
-        elif event.direction == self.right:
+        elif event.direction == JoystickAction.RIGHT:
             self.current_coordinates[0] += 1
-        elif event.direction == self.middle:
+        elif event.direction == JoystickAction.MIDDLE:
             self.update_drop_dict()
 
     def handle_joystick_in_color_palette(self, event):
         self.handle_joystick_in_menu_base(event, "current_color", "selectable_colors", "selectable_color_index")
 
-        if event.direction == self.middle:
+        if event.direction == JoystickAction.MIDDLE:
             if self.current_color == self.random_color_text:
                 self.current_color = ColorGenerator.make_random_color()
 
@@ -134,20 +139,20 @@ class Main:
         index = getattr(self, selectable_item_index)
         items = getattr(self, selectable_items)
 
-        if event.direction == self.up:
+        if event.direction == JoystickAction.UP:
             index += 1
 
             last_index = len(items) - 1
 
             if index > last_index:
                 index = last_index
-        elif event.direction == self.down:
+        elif event.direction == JoystickAction.DOWN:
             if index == 0:
                 self.window = Window.CANVAS
                 return
 
             index -= 1
-        elif event.direction == self.middle:
+        elif event.direction == JoystickAction.MIDDLE:
             setattr(self, current_item, items[index])
             index = 0
 
@@ -167,7 +172,11 @@ class Main:
         self.animate_drop()
 
     def animate_drop(self):
-        self.add_pixel(self.current_coordinates, Color.RED)
+        if self.current_tool == Tool.BRUSH:
+            self.add_pixel(self.current_coordinates, Color.BLUE)
+        elif self.current_tool == Tool.ERASER:
+            self.add_pixel(self.current_coordinates, Color.RED)
+
         time.sleep(0.1)
         self.add_pixel(self.current_coordinates, self.current_color)
 
@@ -183,7 +192,7 @@ class Main:
 
     def update_canvas_window(self):
         self.add_drops_to_ui()
-        self.add_pixel(self.current_coordinates, self.current_color)
+        self.add_pixel_safe(self.current_coordinates, self.current_color)
 
     def update_color_palette_window(self):
         color_palette_window = []
@@ -208,12 +217,39 @@ class Main:
 
     def update_tool_window(self):
         selectable_tool = self.selectable_tools[self.selectable_tool_index]
+
+        o = Color.BLACK
+
+        tool_symbol = []
+
         if selectable_tool == Tool.BRUSH:
-            # Placeholder
-            self.sense.show_message("Brush")
+            b = Color.BLUE
+
+            tool_symbol = [
+                b, b, b, b, b, b, b, o,
+                b, b, b, b, b, b, b, b,
+                b, b, o, o, o, o, b, b,
+                b, b, b, b, b, b, b, o,
+                b, b, b, b, b, b, b, o,
+                b, b, o, o, o, o, b, b,
+                b, b, b, b, b, b, b, b,
+                b, b, b, b, b, b, b, o,
+            ]
         elif selectable_tool == Tool.ERASER:
-            # Placeholder
-            self.sense.show_message("Eraser")
+            r = Color.RED
+
+            tool_symbol = [
+                r, r, r, r, r, r, r, r,
+                r, r, r, r, r, r, r, r,
+                r, r, o, o, o, o, o, o,
+                r, r, r, r, r, r, r, r,
+                r, r, r, r, r, r, r, r,
+                r, r, o, o, o, o, o, o,
+                r, r, r, r, r, r, r, r,
+                r, r, r, r, r, r, r, r,
+            ]
+
+        self.sense.set_pixels(tool_symbol)
 
     def add_drops_to_ui(self):
         for drop_coordinate, drop_color in self.drops.items():
@@ -229,6 +265,11 @@ if __name__ == "__main__":
 # Double tap to exit or press and hold?
 # Should I be using the while true?
 # Move other classes / enums to their own files?
-# Move project to its own repo?
-# Rename it to something else
+# Move project to its own repo and rename it to something else?
 # Maybe extend it to be able to do animations as well (sprites)
+# Color the erase and brush animations dynamically so that the animations are never the same as the current color
+# Should the current color change based on what the current color is on top of?  Or it could flicker
+# Brush size menu, this will require the canvas actions to be reworked, brush size should affect the erase and the brush
+# Brush shape menu
+# Animations and having it run them
+# Should the multiple menus be rolled into one menu and that menu have submenus for brushes, colors, and brush size?
