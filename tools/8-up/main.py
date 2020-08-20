@@ -64,7 +64,7 @@ class Main:
     def handle_joystick(self, event):
         if event.action == "pressed":
             if self.window == Window.CANVAS:
-                self.handle_joystick_in_cavas(event)
+                self.handle_joystick_in_canvas(event)
             elif self.window == Window.COLOR_PALETTE:
                 self.handle_joystick_in_color_palette(event)
             elif self.window == Window.TOOL:
@@ -74,7 +74,7 @@ class Main:
 
             self.refresh_ui()
 
-    def handle_joystick_in_cavas(self, event):
+    def handle_joystick_in_canvas(self, event):
         if event.direction == JoystickAction.UP:
             if self.current_coordinates == [0, 0]:
                 self.window = Window.COLOR_PALETTE
