@@ -52,10 +52,8 @@ class Main:
             # refresh_ui()
             time.sleep(1)
 
-
     def add_pixel(self, coordinates, color):
         self.sense.set_pixel(coordinates[0], coordinates[1], color)
-
 
     def add_pixel_safe(self, coordinates, color):
         for i in range(len(coordinates)):
@@ -132,7 +130,6 @@ class Main:
             self.window = Window.CANVAS
 
         setattr(self, selectable_item_index, index)
-
 
     def update_drop_dict(self):
         current_coordinates_tuple = tuple(self.current_coordinates)
