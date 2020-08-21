@@ -3,6 +3,7 @@
 import time
 
 
+from copy import deepcopy
 from enums import BrushSize, Tool, Window
 from static_classes import Color, ColorGenerator, JoystickAction
 from sense_hat import SenseHat
@@ -26,8 +27,9 @@ class Main:
         self.selectable_brush_sizes = [brush_size for brush_size in BrushSize]
         self.selectable_brush_sizes_index = 0
 
-        self.current_coordinates = [0, 0]
+        self.origin = [0, 0]
 
+        self.current_coordinates = deepcopy(self.origin)
         self.current_color = self.selectable_colors[2]
         self.current_tool = self.selectable_tools[0]
         self.current_brush_size = self.selectable_brush_sizes[0]
@@ -55,6 +57,9 @@ class Main:
         self.sense.set_pixel(coordinates[0], coordinates[1], color)
 
     def print_brush(self, coordinates, width, color):
+        # if self.current_tool == Tool.ERASER:
+        #     color = Color.BLACK
+
         for i in range(coordinates[1], coordinates[1] + width):
             for j in range(coordinates[0], coordinates[0] + width):
                 self.add_pixel([j, i], color)
@@ -80,7 +85,7 @@ class Main:
             self.refresh_ui()
 
     def has_entered_menu(self):
-        if self.current_coordinates == [0, 0]:
+        if self.current_coordinates == self.origin:
             self.window = Window.COLOR_PALETTE
         elif self.current_coordinates == [1, 0]:
             self.window = Window.TOOL
@@ -143,23 +148,26 @@ class Main:
         setattr(self, selectable_item_index, index)
 
     def update_drop_dict(self):
-        current_coordinates_tuple = tuple(self.current_coordinates)
+        for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
+            for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+                current_coordinates_tuple = tuple([j, i])
 
-        if self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
-            del self.drops[current_coordinates_tuple]
-        elif self.current_tool == Tool.BRUSH:
-            self.drops[current_coordinates_tuple] = self.current_color
+                if self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
+                    del self.drops[current_coordinates_tuple]
+                elif self.current_tool == Tool.BRUSH:
+                    self.drops[current_coordinates_tuple] = self.current_color
 
-        self.animate_drop()
+        self.animate_drops()
 
-    def animate_drop(self):
-        if self.current_tool == Tool.BRUSH:
-            self.add_pixel(self.current_coordinates, Color.BLUE)
-        elif self.current_tool == Tool.ERASER:
-            self.add_pixel(self.current_coordinates, Color.RED)
+    def animate_drops(self):
+        for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
+            for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+                if self.current_tool == Tool.BRUSH:
+                    self.add_pixel([j, i], Color.BLUE)
+                elif self.current_tool == Tool.ERASER:
+                    self.add_pixel([j, i], Color.RED)
 
         time.sleep(0.1)
-        self.add_pixel(self.current_coordinates, self.current_color)
 
     def refresh_ui(self):
         self.sense.clear()
@@ -237,7 +245,7 @@ class Main:
 
     def update_brush_size_window(self):
         selectable_brush_size = self.selectable_brush_sizes[self.selectable_brush_sizes_index]
-        self.print_brush([0, 0], selectable_brush_size.value, self.current_color)
+        self.print_brush(self.origin, selectable_brush_size.value, self.current_color)
 
     def add_drops_to_ui(self):
         for drop_coordinate, drop_color in self.drops.items():
