@@ -17,6 +17,7 @@ class BrushSize(Enum):
 class Tool(Enum):
     BRUSH = auto()
     ERASER = auto()
+    EYE_DROPPER = auto()
 
 
 @unique

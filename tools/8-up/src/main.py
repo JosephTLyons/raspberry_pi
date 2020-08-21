@@ -5,7 +5,7 @@ import time
 
 from copy import deepcopy
 from enums import BrushSize, Tool, Window
-from static_classes import Color, ColorGenerator, JoystickAction
+from static_classes import Color, ColorGenerator, JoystickAction, Letter
 from sense_hat import SenseHat
 
 
@@ -210,36 +210,12 @@ class Main:
     def update_tool_window(self):
         selectable_tool = self.selectable_tools[self.selectable_tools_index]
 
-        o = Color.BLACK
-
-        tool_symbol = []
-
         if selectable_tool == Tool.BRUSH:
-            b = Color.BLUE
-
-            tool_symbol = [
-                b, b, b, b, b, b, b, o,
-                b, b, b, b, b, b, b, b,
-                b, b, o, o, o, o, b, b,
-                b, b, b, b, b, b, b, o,
-                b, b, b, b, b, b, b, o,
-                b, b, o, o, o, o, b, b,
-                b, b, b, b, b, b, b, b,
-                b, b, b, b, b, b, b, o,
-            ]
+            tool_symbol = Letter.get_b(Color.BLUE)
         elif selectable_tool == Tool.ERASER:
-            r = Color.RED
-
-            tool_symbol = [
-                r, r, r, r, r, r, r, r,
-                r, r, r, r, r, r, r, r,
-                r, r, o, o, o, o, o, o,
-                r, r, r, r, r, r, r, r,
-                r, r, r, r, r, r, r, r,
-                r, r, o, o, o, o, o, o,
-                r, r, r, r, r, r, r, r,
-                r, r, r, r, r, r, r, r,
-            ]
+            tool_symbol = Letter.get_e(Color.RED)
+        else:
+            tool_symbol = Letter.get_e(Color.GREEN)
 
         self.sense.set_pixels(tool_symbol)
 
