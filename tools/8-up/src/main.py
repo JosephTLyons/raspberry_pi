@@ -3,8 +3,8 @@
 import time
 
 
-from enums import BrushSize, Tool, Window
-from static_classes import Color, ColorGenerator, JoystickAction
+from src.enums import BrushSize, Tool, Window
+from src.static_classes import Color, ColorGenerator, JoystickAction
 from sense_hat import SenseHat
 
 
@@ -74,15 +74,21 @@ class Main:
 
             self.refresh_ui()
 
+    def has_entered_menu(self):
+        if self.current_coordinates == [0, 0]:
+            self.window = Window.COLOR_PALETTE
+        elif self.current_coordinates == [1, 0]:
+            self.window = Window.TOOL
+        elif self.current_coordinates == [2, 0]:
+            self.window = Window.BRUSH_SIZE
+        else:
+            return False
+
+        return True
+
     def handle_joystick_in_canvas(self, event):
         if event.direction == JoystickAction.UP:
-            if self.current_coordinates == [0, 0]:
-                self.window = Window.COLOR_PALETTE
-            elif self.current_coordinates == [1, 0]:
-                self.window = Window.TOOL
-            elif self.current_coordinates == [2, 0]:
-                self.window = Window.BRUSH_SIZE
-            else:
+            if not self.has_entered_menu():
                 self.current_coordinates[1] -= 1
         elif event.direction == JoystickAction.DOWN:
             self.current_coordinates[1] += 1
@@ -170,8 +176,8 @@ class Main:
         color_palette_window = []
         border_color = Color.WHITE
 
-        for i in range(self.number_of_pixels_in_row):
-            if i in [0, self.number_of_pixels_in_row - 1]:
+        for _ in range(self.number_of_pixels_in_row):
+            if _ in [0, self.number_of_pixels_in_row - 1]:
                 color_palette_window += [border_color] * self.number_of_pixels_in_row
             else:
                 color_palette_window += [border_color]
