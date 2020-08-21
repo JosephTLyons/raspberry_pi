@@ -3,8 +3,8 @@
 import time
 
 
-from src.enums import BrushSize, Tool, Window
-from src.static_classes import Color, ColorGenerator, JoystickAction
+from enums import BrushSize, Tool, Window
+from static_classes import Color, ColorGenerator, JoystickAction
 from sense_hat import SenseHat
 
 
@@ -16,21 +16,20 @@ class Main:
 
         self.random_color_text = "random"
 
+        # See about getting a list of these like we're doing with the enums
         self.selectable_colors = [self.random_color_text, Color.RED, Color.GREEN, Color.BLUE]
         self.selectable_colors_index = 0
 
-        self.selectable_tools = [Tool.BRUSH, Tool.ERASER]
+        self.selectable_tools = [tool for tool in Tool]
         self.selectable_tools_index = 0
 
-        self.selectable_brush_sizes = [BrushSize.SMALL, BrushSize.MEDIUM, BrushSize.LARGE]
+        self.selectable_brush_sizes = [brush_size for brush_size in BrushSize]
         self.selectable_brush_sizes_index = 0
 
         self.current_coordinates = [0, 0]
 
-        self.current_color = Color.GREEN
-        self.current_tool = Tool.BRUSH
-        self.current_brush_size = BrushSize.SMALL
-
+        self.current_color = self.selectable_colors[2]
+        self.current_tool = self.selectable_tools[0]
         self.current_brush_size = self.selectable_brush_sizes[0]
 
         self.sense = SenseHat()
@@ -55,11 +54,17 @@ class Main:
     def add_pixel(self, coordinates, color):
         self.sense.set_pixel(coordinates[0], coordinates[1], color)
 
-    def add_pixel_safe(self, coordinates, color):
-        for i in range(len(coordinates)):
-            self.current_coordinates[i] %= 8
+    def print_brush(self, coordinates, width, color):
+        for i in range(coordinates[1], coordinates[1] + width):
+            for j in range(coordinates[0], coordinates[0] + width):
+                self.add_pixel([j, i], color)
 
-        self.add_pixel(coordinates, color)
+    def adjust_brush_position(self, coordinates):
+        for i in range(len(coordinates)):
+            if coordinates[i] < 0:
+                coordinates[i] = self.number_of_pixels_in_row - self.current_brush_size.value
+            elif coordinates[i] + self.current_brush_size.value > self.number_of_pixels_in_row:
+                coordinates[i] = 0
 
     def handle_joystick(self, event):
         if event.action == "pressed":
@@ -170,7 +175,8 @@ class Main:
 
     def update_canvas_window(self):
         self.add_drops_to_ui()
-        self.add_pixel_safe(self.current_coordinates, self.current_color)
+        self.adjust_brush_position(self.current_coordinates)
+        self.print_brush(self.current_coordinates, self.current_brush_size.value, self.current_color)
 
     def update_color_palette_window(self):
         color_palette_window = []
@@ -230,12 +236,8 @@ class Main:
         self.sense.set_pixels(tool_symbol)
 
     def update_brush_size_window(self):
-        if self.current_brush_size == BrushSize.SMALL:
-            self.sense.set_pixel(0, 0, self.current_color)
-        elif self.current_brush_size == BrushSize.MEDIUM:
-            pass
-        elif self.current_brush_size == BrushSize.LARGE:
-            pass
+        selectable_brush_size = self.selectable_brush_sizes[self.selectable_brush_sizes_index]
+        self.print_brush([0, 0], selectable_brush_size.value, self.current_color)
 
     def add_drops_to_ui(self):
         for drop_coordinate, drop_color in self.drops.items():

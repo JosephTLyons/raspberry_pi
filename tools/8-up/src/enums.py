@@ -5,9 +5,12 @@ from enum import Enum, auto, unique
 
 @unique
 class BrushSize(Enum):
-    SMALL = auto()
-    MEDIUM = auto()
-    LARGE = auto()
+    ONE = auto()
+    TWO = auto()
+    THREE = auto()
+    FOUR = auto()
+    FIVE = auto()
+    SIX = auto()
 
 
 @unique
