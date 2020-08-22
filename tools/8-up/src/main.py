@@ -44,22 +44,12 @@ class Main:
         self.add_pixel(self.current_coordinates, self.current_color)
 
         while True:
-            # temp_current_color = current_color
-            # time.sleep(0.25)
-            # current_color = black
-            # refresh_ui()
-            # time.sleep(0.25)
-            # current_color = temp_current_color
-            # refresh_ui()
             time.sleep(1)
 
     def add_pixel(self, coordinates, color):
         self.sense.set_pixel(coordinates[0], coordinates[1], color)
 
     def print_brush(self, coordinates, width, color):
-        # if self.current_tool == Tool.ERASER:
-        #     color = Color.BLACK
-
         for i in range(coordinates[1], coordinates[1] + width):
             for j in range(coordinates[0], coordinates[0] + width):
                 self.add_pixel([j, i], color)
