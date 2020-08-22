@@ -4,6 +4,7 @@
 - Should the multiple menus be rolled into one menu and that menu have submenus for brushes, colors, and brush size?
 - Brush shape menu
 - Animation support
+- X / Y axis symmetrical draw
 
 - Shake to erase whole thing? (make sure to keep main dot where it is at)
 - Double tap to exit or press and hold?
