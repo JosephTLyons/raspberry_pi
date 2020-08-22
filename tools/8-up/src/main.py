@@ -7,6 +7,7 @@ from copy import deepcopy
 from enums import BrushSize, Tool, Window
 from static_classes import Color, ColorGenerator, JoystickAction, Letter
 from sense_hat import SenseHat
+from signal import pause
 
 
 class Main:
@@ -43,8 +44,7 @@ class Main:
         self.sense.clear()
         self.add_pixel(self.current_coordinates, self.current_color)
 
-        while True:
-            time.sleep(1)
+        pause()
 
     def add_pixel(self, coordinates, color):
         self.sense.set_pixel(coordinates[0], coordinates[1], color)
