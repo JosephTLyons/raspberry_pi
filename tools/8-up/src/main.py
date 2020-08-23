@@ -42,17 +42,14 @@ class Main:
 
     def run(self):
         self.sense.clear()
-        self.add_pixel(self.current_coordinates, self.current_color)
+        self.print_brush(self.current_coordinates, self.current_brush_size.value, self.current_color)
 
         pause()
-
-    def add_pixel(self, coordinates, color):
-        self.sense.set_pixel(coordinates[0], coordinates[1], color)
 
     def print_brush(self, coordinates, width, color):
         for i in range(coordinates[1], coordinates[1] + width):
             for j in range(coordinates[0], coordinates[0] + width):
-                self.add_pixel([j, i], color)
+                self.sense.set_pixel(j, i, color)
 
     def adjust_brush_position(self, coordinates):
         for i in range(len(coordinates)):
@@ -153,9 +150,9 @@ class Main:
         for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
             for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
                 if self.current_tool == Tool.BRUSH:
-                    self.add_pixel([j, i], Color.BLUE)
+                    self.sense.set_pixel(j, i, Color.BLUE)
                 elif self.current_tool == Tool.ERASER:
-                    self.add_pixel([j, i], Color.RED)
+                    self.sense.set_pixel(j, i, Color.RED)
 
         time.sleep(0.1)
 
@@ -215,7 +212,7 @@ class Main:
 
     def add_drops_to_ui(self):
         for drop_coordinate, drop_color in self.drops.items():
-            self.add_pixel(drop_coordinate, drop_color)
+            self.sense.set_pixel(drop_coordinate[0], drop_coordinate[1], drop_color)
 
 
 if __name__ == "__main__":
