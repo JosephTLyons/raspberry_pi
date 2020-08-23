@@ -140,7 +140,7 @@ class Main:
     def update_drop_dict(self):
         for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
             for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
-                current_coordinates_tuple = tuple([j, i])
+                current_coordinates_tuple = j, i
 
                 if self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
                     del self.drops[current_coordinates_tuple]
