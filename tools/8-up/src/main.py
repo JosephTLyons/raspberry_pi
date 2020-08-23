@@ -47,9 +47,9 @@ class Main:
         pause()
 
     def print_brush(self, coordinates, width, color):
-        for i in range(coordinates[1], coordinates[1] + width):
-            for j in range(coordinates[0], coordinates[0] + width):
-                self.sense.set_pixel(j, i, color)
+        for y in range(coordinates[1], coordinates[1] + width):
+            for x in range(coordinates[0], coordinates[0] + width):
+                self.sense.set_pixel(x, y, color)
 
     def adjust_brush_position(self, coordinates):
         for i in range(len(coordinates)):
@@ -135,9 +135,9 @@ class Main:
         setattr(self, selectable_item_index, index)
 
     def update_drop_dict(self):
-        for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
-            for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
-                current_coordinates_tuple = j, i
+        for y in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
+            for x in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+                current_coordinates_tuple = x, y
 
                 if self.current_tool == Tool.BRUSH:
                     self.drops[current_coordinates_tuple] = self.current_color
@@ -147,12 +147,14 @@ class Main:
         self.animate_drops()
 
     def animate_drops(self):
-        for i in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
-            for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+        for y in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
+            for x in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
                 if self.current_tool == Tool.BRUSH:
-                    self.sense.set_pixel(j, i, Color.BLUE)
-                elif self.current_tool == Tool.ERASER:
-                    self.sense.set_pixel(j, i, Color.RED)
+                    color = Color.BLUE
+                else:
+                    color = Color.RED
+
+                self.sense.set_pixel(x, y, color)
 
         time.sleep(0.1)
 
