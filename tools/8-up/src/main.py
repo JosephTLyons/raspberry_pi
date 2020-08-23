@@ -142,10 +142,10 @@ class Main:
             for j in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
                 current_coordinates_tuple = j, i
 
-                if self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
-                    del self.drops[current_coordinates_tuple]
-                elif self.current_tool == Tool.BRUSH:
+                if self.current_tool == Tool.BRUSH:
                     self.drops[current_coordinates_tuple] = self.current_color
+                elif self.current_tool == Tool.ERASER and current_coordinates_tuple in self.drops:
+                    del self.drops[current_coordinates_tuple]
 
         self.animate_drops()
 
