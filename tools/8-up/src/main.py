@@ -5,9 +5,9 @@ import time
 
 from copy import deepcopy
 from enums import BrushSize, Tool, Window
-from static_classes import Color, ColorGenerator, JoystickAction, Letter
 from sense_hat import SenseHat
 from signal import pause
+from static_classes import Color, ColorGenerator, JoystickAction, Letter
 
 
 class Main:
