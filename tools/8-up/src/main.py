@@ -177,22 +177,14 @@ class Main:
 
     def update_color_palette_window(self):
         color_palette_window = []
-        border_color = Color.WHITE
 
         for _ in range(self.number_of_pixels_in_row):
-            if _ in [0, self.number_of_pixels_in_row - 1]:
-                color_palette_window += [border_color] * self.number_of_pixels_in_row
+            selectable_color = self.selectable_colors[self.selectable_colors_index]
+
+            if selectable_color == self.random_color_text:
+                color_palette_window += ColorGenerator.make_random_color_list(self.number_of_pixels_in_row)
             else:
-                color_palette_window += [border_color]
-
-                selectable_color = self.selectable_colors[self.selectable_colors_index]
-
-                if selectable_color == self.random_color_text:
-                    color_palette_window += ColorGenerator.make_random_color_list(6)
-                else:
-                    color_palette_window += [selectable_color] * 6
-
-                color_palette_window += [border_color]
+                color_palette_window += [selectable_color] * self.number_of_pixels_in_row
 
         self.sense.set_pixels(color_palette_window)
 
