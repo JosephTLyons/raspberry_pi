@@ -27,6 +27,7 @@ class Letter:
         o = Color.BLACK
         c = color
 
+        # fmt: off
         letter = [
             c, c, c, c, c, c, c, o,
             c, c, c, c, c, c, c, c,
@@ -37,6 +38,7 @@ class Letter:
             c, c, c, c, c, c, c, c,
             c, c, c, c, c, c, c, o,
         ]
+        # fmt: on
 
         return letter
 
@@ -45,6 +47,7 @@ class Letter:
         o = Color.BLACK
         c = color
 
+        # fmt: off
         letter = [
             c, c, c, c, c, c, c, c,
             c, c, c, c, c, c, c, c,
@@ -55,6 +58,7 @@ class Letter:
             c, c, c, c, c, c, c, c,
             c, c, c, c, c, c, c, c,
         ]
+        # fmt: on
 
         return letter
 

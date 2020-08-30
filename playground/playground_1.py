@@ -11,6 +11,7 @@ sense.set_rotation(270)
 o = [0, 0, 0]
 r = [255, 0, 0]
 
+# fmt: off
 red_minus = [
     o, o, o, o, o, o, o, o,
     o, o, o, o, o, o, o, o,
@@ -21,9 +22,11 @@ red_minus = [
     o, o, o, o, o, o, o, o,
     o, o, o, o, o, o, o, o,
 ]
+# fmt: on
 
 g = [0, 255, 0]
 
+# fmt: off
 green_plus = [
     o, o, o, g, g, o, o, o,
     o, o, o, g, g, o, o, o,
@@ -34,9 +37,11 @@ green_plus = [
     o, o, o, g, g, o, o, o,
     o, o, o, g, g, o, o, o,
 ]
+# fmt: on
 
 b = [0, 0, 255]
 
+# fmt: off
 blue_x = [
     b, b, o, o, o, o, b, b,
     b, b, b, o, o, b, b, b,
@@ -47,6 +52,7 @@ blue_x = [
     b, b, b, o, o, b, b, b,
     b, b, o, o, o, o, b, b,
 ]
+# fmt: on
 
 # sleep_in_seconds = 0.1
 # images = [green_plus, red_minus, blue_x]

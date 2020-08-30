@@ -19,7 +19,12 @@ class Main:
         self.random_color_text = "random"
 
         # See about getting a list of these like we're doing with the enums
-        self.selectable_colors = [self.random_color_text, Color.RED, Color.GREEN, Color.BLUE]
+        self.selectable_colors = [
+            self.random_color_text,
+            Color.RED,
+            Color.GREEN,
+            Color.BLUE,
+        ]
         self.selectable_colors_index = 0
 
         self.selectable_tools = [tool for tool in Tool]
@@ -42,7 +47,9 @@ class Main:
 
     def run(self):
         self.sense.clear()
-        self.print_brush(self.current_coordinates, self.current_brush_size.value, self.current_color)
+        self.print_brush(
+            self.current_coordinates, self.current_brush_size.value, self.current_color
+        )
 
         pause()
 
@@ -97,19 +104,30 @@ class Main:
             self.update_drop_dict()
 
     def handle_joystick_in_color_palette(self, event):
-        self.handle_joystick_in_menu_base(event, "current_color", "selectable_colors", "selectable_colors_index")
+        self.handle_joystick_in_menu_base(
+            event, "current_color", "selectable_colors", "selectable_colors_index"
+        )
 
         if event.direction == JoystickAction.MIDDLE:
             if self.current_color == self.random_color_text:
                 self.current_color = ColorGenerator.make_random_color()
 
     def handle_joystick_in_tool(self, event):
-        self.handle_joystick_in_menu_base(event, "current_tool", "selectable_tools", "selectable_tools_index")
+        self.handle_joystick_in_menu_base(
+            event, "current_tool", "selectable_tools", "selectable_tools_index"
+        )
 
     def handle_joystick_in_brush_size(self, event):
-        self.handle_joystick_in_menu_base(event, "current_brush_size", "selectable_brush_sizes", "selectable_brush_sizes_index")
+        self.handle_joystick_in_menu_base(
+            event,
+            "current_brush_size",
+            "selectable_brush_sizes",
+            "selectable_brush_sizes_index",
+        )
 
-    def handle_joystick_in_menu_base(self, event, current_item, selectable_items, selectable_item_index):
+    def handle_joystick_in_menu_base(
+        self, event, current_item, selectable_items, selectable_item_index
+    ):
         index = getattr(self, selectable_item_index)
         items = getattr(self, selectable_items)
 
@@ -135,8 +153,14 @@ class Main:
         setattr(self, selectable_item_index, index)
 
     def update_drop_dict(self):
-        for y in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
-            for x in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+        for y in range(
+            self.current_coordinates[1],
+            self.current_coordinates[1] + self.current_brush_size.value,
+        ):
+            for x in range(
+                self.current_coordinates[0],
+                self.current_coordinates[0] + self.current_brush_size.value,
+            ):
                 current_coordinates_tuple = x, y
 
                 if self.current_tool == Tool.BRUSH:
@@ -147,8 +171,14 @@ class Main:
         self.animate_drops()
 
     def animate_drops(self):
-        for y in range(self.current_coordinates[1], self.current_coordinates[1] + self.current_brush_size.value):
-            for x in range(self.current_coordinates[0], self.current_coordinates[0] + self.current_brush_size.value):
+        for y in range(
+            self.current_coordinates[1],
+            self.current_coordinates[1] + self.current_brush_size.value,
+        ):
+            for x in range(
+                self.current_coordinates[0],
+                self.current_coordinates[0] + self.current_brush_size.value,
+            ):
                 if self.current_tool == Tool.BRUSH:
                     color = Color.BLUE
                 else:
@@ -173,7 +203,9 @@ class Main:
     def update_canvas_window(self):
         self.add_drops_to_ui()
         self.adjust_brush_position(self.current_coordinates)
-        self.print_brush(self.current_coordinates, self.current_brush_size.value, self.current_color)
+        self.print_brush(
+            self.current_coordinates, self.current_brush_size.value, self.current_color
+        )
 
     def update_color_palette_window(self):
         color_palette_window = []
@@ -182,7 +214,9 @@ class Main:
             selectable_color = self.selectable_colors[self.selectable_colors_index]
 
             if selectable_color == self.random_color_text:
-                color_palette_window += ColorGenerator.make_random_color_list(self.number_of_pixels_in_row)
+                color_palette_window += ColorGenerator.make_random_color_list(
+                    self.number_of_pixels_in_row
+                )
             else:
                 color_palette_window += [selectable_color] * self.number_of_pixels_in_row
 
