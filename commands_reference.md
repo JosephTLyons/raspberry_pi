@@ -1,6 +1,6 @@
 # commands_reference
 
-## Power commands
+## Power Commands
 
 shut down
 
