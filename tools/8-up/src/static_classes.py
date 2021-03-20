@@ -4,6 +4,7 @@ from random import randint
 
 
 class Color:
+    RANDOM = None,
     BLACK = (0, 0, 0)
     BLUE = (0, 0, 255)
     GREEN = (0, 255, 0)

@@ -16,15 +16,7 @@ class Main:
 
         self.drops = {}
 
-        self.random_color_text = "random"
-
-        # See about getting a list of these like we're doing with the enums
-        self.selectable_colors = [
-            self.random_color_text,
-            Color.RED,
-            Color.GREEN,
-            Color.BLUE,
-        ]
+        self.selectable_colors = [color for color in Color]
         self.selectable_colors_index = 0
 
         self.selectable_tools = [tool for tool in Tool]
@@ -109,7 +101,7 @@ class Main:
         )
 
         if event.direction == JoystickAction.MIDDLE:
-            if self.current_color == self.random_color_text:
+            if self.current_color == Color.RANDOM:
                 self.current_color = ColorGenerator.make_random_color()
 
     def handle_joystick_in_tool(self, event):
@@ -213,7 +205,7 @@ class Main:
         for _ in range(self.number_of_pixels_in_row):
             selectable_color = self.selectable_colors[self.selectable_colors_index]
 
-            if selectable_color == self.random_color_text:
+            if selectable_color == Color.RANDOM:
                 color_palette_window += ColorGenerator.make_random_color_list(
                     self.number_of_pixels_in_row
                 )
